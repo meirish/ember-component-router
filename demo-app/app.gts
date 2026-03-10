@@ -35,4 +35,6 @@ export class App extends EmberApp {
   };
 }
 
-Router.map(function () {});
+Router.map(function () {
+  this.route('all', { path: '*' })
+});

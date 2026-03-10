@@ -15,6 +15,9 @@
     ".": {
       "default": "./dist/index.js"
     },
+    "./routes": {
+      "default": "./dist/routes.js"
+    },
     "./addon-main.js": "./addon-main.cjs",
     "./*.css": "./dist/*.css",
     "./*": {
@@ -43,11 +46,13 @@
   },
   "dependencies": {
     "@embroider/addon-shim": "^1.8.9",
+    "@remix-run/route-pattern": "^0.19.0",
     "decorator-transforms": "^2.2.2"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@babel/eslint-parser": "^7.25.1",
+    "@babel/plugin-transform-typescript": "^7.28.6",
     "@babel/runtime": "^7.25.6",
     "@ember/app-tsconfig": "^1.0.0",
     "@ember/library-tsconfig": "^1.0.0",
@@ -60,7 +65,10 @@
     "@embroider/vite": "^1.1.5",
     "@eslint/js": "^9.17.0",
     "@glimmer/component": "^2.0.0",
+    "@glint/ember-tsc": "^1.1.1",
+    "@glint/template": "^1.7.4",
     "@rollup/plugin-babel": "^6.0.4",
+    "@types/qunit": "^2.19.13",
     "babel-plugin-ember-template-compilation": "^2.2.5",
     "concurrently": "^9.0.1",
     "ember-page-title": "^9.0.3",
@@ -80,7 +88,9 @@
     "qunit-dom": "^3.4.0",
     "rollup": "^4.22.5",
     "testem": "^3.15.1",
-    "vite": "^7.1.9"
+    "typescript": "^5.9.3",
+    "vite": "^7.1.9",
+    "vite-plugin-mkcert": "^1.17.10"
   },
   "ember": {
     "edition": "octane"

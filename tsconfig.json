@@ -1,0 +1,21 @@
+{
+  "glint": {
+    "environment": "ember-template-imports"
+  },
+  "extends": "@ember/app-tsconfig",
+  "include": [
+    "./src/**/*",
+    "./tests/**/*",
+    "./demo-app/**/*",
+    "./unpublished-development-types/**/*"
+  ],
+  "compilerOptions": {
+    "allowJs": true,
+    "rootDir": ".",
+    "types": ["ember-source/types", "@glint/ember-tsc/types", "@types/qunit", "vite/client"],
+    "paths": {
+      "ember-component-router": ["./src/index.ts"],
+      "ember-component-router/*": ["./src/*.ts", "./src/*.gts"]
+    }
+  }
+}
