@@ -1,10 +1,12 @@
 export interface LoaderArgs {
   params: Record<string, string | undefined>;
+  queryParams: URLSearchParams;
   request: Request;
 }
 
 export interface ActionArgs {
   params: Record<string, string | undefined>;
+  queryParams: URLSearchParams;
   request: Request;
 }
 
@@ -34,4 +36,5 @@ export interface RouteLevel {
   component: object;
   loaderData: unknown;
   params: Record<string, string | undefined>;
+  queryParams: URLSearchParams;
 }

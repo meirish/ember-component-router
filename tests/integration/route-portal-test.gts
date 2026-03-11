@@ -4,6 +4,7 @@ import { setupRenderingTest } from 'ember-qunit';
 import { render, waitFor, settled } from '@ember/test-helpers';
 import { RoutePortal } from 'ember-component-router';
 import { route, index } from 'ember-component-router/routes';
+import type { LoaderArgs } from 'ember-component-router';
 
 const HomeComponent = <template><p data-test-home>Home</p></template>;
 const AboutComponent = <template><p data-test-about>About</p></template>;
@@ -128,5 +129,40 @@ module('Integration | Component | RoutePortal', function (hooks) {
 
     await waitFor('[data-test-data]', { timeout: 2000 });
     assert.dom('[data-test-data]').hasText('hello from loader');
+  });
+
+  test('query params are passed to the loader and component', async function (assert) {
+    if (!window.navigation) {
+      assert.ok(true, 'Navigation API not available — skipping');
+      return;
+    }
+
+    interface Sig {
+      Args: { loaderData: { page: string } };
+    }
+    class ListComponent extends Component<Sig> {
+      <template>
+        <p data-test-page>{{@loaderData.page}}</p>
+      </template>
+    }
+
+    const routes = [
+      route('items', async () => ({
+        default: ListComponent,
+        async loader({ queryParams }: LoaderArgs) {
+          return { page: queryParams.get('page') ?? '1' };
+        },
+      })),
+    ];
+
+    await render(<template>
+      <RoutePortal @config={{routes}} @base="/" />
+    </template>);
+
+    await window.navigation.navigate('/items?page=3').finished;
+    await settled();
+
+    await waitFor('[data-test-page]', { timeout: 2000 });
+    assert.dom('[data-test-page]').hasText('3');
   });
 });

@@ -40,9 +40,13 @@ export default class Outlet extends Component<OutletSignature> {
     return this.#level?.params ?? {};
   }
 
+  get queryParams(): URLSearchParams {
+    return this.#level?.queryParams ?? new URLSearchParams();
+  }
+
   <template>
     {{#if this.currentComponent}}
-      {{component this.currentComponent loaderData=this.loaderData params=this.params}}
+      {{component this.currentComponent loaderData=this.loaderData params=this.params queryParams=this.queryParams}}
     {{/if}}
   </template>
 }

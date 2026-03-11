@@ -12,7 +12,7 @@ Route patterns are matched using [`@remix-run/route-pattern`](https://github.com
 
 - Ember.js v5.8+
 - Embroider (V2 addon format)
-- A browser with the Navigation API (`window.navigation`) — Chrome 102+
+- A browser with the Navigation API (`window.navigation`)
 
 ## Installation
 
@@ -49,6 +49,13 @@ import routeConfig from './routes/config';
 </template>
 ```
 
+## Using with Ember's router
+
+`ember-component-router` uses the Navigation API to intercept browser routing, but if used in conjuction with Ember's router, pushstate and popstate events still fire on browser forward or back functionality. Additionally, loading on a page that directly routes via a pattern matched by `ember-component-router` will result in a `route not found` error. To work around both of these issues, you can define a catch-all route _in the Ember router_ that renders the same template defined in your template. This is akin to how when you set up an SPA for production, you tell servers to serve the same index.html file regardless of the path because the server isn't doing the routing - but in this case it's Ember's router that is ceding control to the Navigation API.
+
+Yes, I know this isn't realistic for real-world apps (neither is using the Navigation API as the only means of routing), but it is a workaround that's useful for trying the addon out as a technical experiment. And Navigation API is part of [Interop 2026](https://wpt.fyi/results/navigation-api?label=master&label=experimental&aligned&view=interop&q=label%3Ainterop-2026-navigation), so broad support is hopefully on the horizon!
+
+
 ## Route modules
 
 Each route module is a standard JS/TS module. The `default` export is the component to render.
@@ -65,8 +72,9 @@ Each route module is a standard JS/TS module. The `default` export is the compon
 Export an async `loader` function to fetch data before the component renders. The result is passed as `@loaderData`.
 
 ```ts
-export async function loader({ params, request }) {
-  const user = await fetchUser(params.id);
+export async function loader({ params, queryParams, request }: LoaderArgs) {
+  const page = queryParams.get('page') ?? '1';
+  const user = await fetchUser(params.id, page);
   return user;
 }
 
@@ -80,7 +88,7 @@ export default <template>
 Export an `action` function to handle form submissions (Navigation API `formData` events). After the action runs, the route re-renders via the loader.
 
 ```ts
-export async function action({ params, request }) {
+export async function action({ params, queryParams, request }: ActionArgs) {
   const data = await request.formData();
   await saveUser(data);
 }
@@ -125,6 +133,30 @@ import { Outlet } from 'ember-component-router';
 ```
 
 Layouts can have their own `loader` — the result is passed as `@loaderData` to the layout component.
+
+## Component args
+
+All route components receive three named args from the router:
+
+```ts
+interface Signature {
+  Args: {
+    loaderData: unknown;           // return value of the route's loader
+    params: Record<string, string | undefined>; // dynamic URL segments
+    queryParams: URLSearchParams;  // parsed query string
+  };
+}
+```
+
+Access query params with the standard `URLSearchParams` API:
+
+```ts
+export default class MyRoute extends Component<Sig> {
+  get page() {
+    return this.args.queryParams.get('page') ?? '1';
+  }
+}
+```
 
 ## Route helpers
 
@@ -186,4 +218,4 @@ Patterns use the `@remix-run/route-pattern` syntax:
 
 ## License
 
-[MIT](LICENSE.md)
+This project is licensed under the [MIT License](LICENSE.md)

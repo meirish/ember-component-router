@@ -57,10 +57,14 @@ export default class RoutePortal extends Component<RoutePortalSignature> {
     return this.#level?.params ?? {};
   }
 
+  get queryParams(): URLSearchParams {
+    return this.#level?.queryParams ?? new URLSearchParams();
+  }
+
   <template>
     <div data-route-portal>
       {{#if this.currentComponent}}
-        {{component this.currentComponent loaderData=this.loaderData params=this.params}}
+        {{component this.currentComponent loaderData=this.loaderData params=this.params queryParams=this.queryParams}}
       {{/if}}
     </div>
   </template>

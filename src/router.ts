@@ -49,13 +49,14 @@ function joinPaths(base: string, segment: string): string {
 async function buildLevel(
   mod: RouteModule,
   params: Record<string, string | undefined>,
+  queryParams: URLSearchParams,
   request: Request
 ): Promise<RouteLevel> {
   let loaderData: unknown;
   if (mod.loader) {
-    loaderData = await mod.loader({ params, request });
+    loaderData = await mod.loader({ params, queryParams, request });
   }
-  return { component: mod.default, loaderData, params };
+  return { component: mod.default, loaderData, params, queryParams };
 }
 
 export class Router {
@@ -74,6 +75,7 @@ export class Router {
 
     this.#matcher = new ArrayMatcher<ResolvedRoute>();
     for (const route of flattenRoutes(config, this.#base)) {
+      console.log('route is: ', route)
       this.#matcher.add(route.fullPattern, route);
     }
 
@@ -81,6 +83,7 @@ export class Router {
 
     const initialUrl = new URL(window.location.href);
     const initialMatches = this.#matcher.matchAll(initialUrl);
+    console.log(initialMatches);
     if (initialMatches.length) {
       const token = ++this.#renderToken;
       void this.#renderForUrl(initialUrl, initialMatches, token);
@@ -124,6 +127,7 @@ export class Router {
 
   async #loadModules(
     leafMatch: RouteMatch,
+    queryParams: URLSearchParams,
     token: number,
     signal?: AbortSignal
   ): Promise<{ mods: RouteModule[]; params: Record<string, string | undefined> } | null> {
@@ -136,7 +140,7 @@ export class Router {
       mods = await Promise.all(allFactories.map((f) => f()));
     } catch (error) {
       if (this.#isStale(token, signal)) return null;
-      this.#onMatch([{ component: {}, loaderData: error, params }]);
+      this.#onMatch([{ component: {}, loaderData: error, params, queryParams }]);
       return null;
     }
 
@@ -152,14 +156,15 @@ export class Router {
     signal?: AbortSignal
   ): Promise<void> {
     const request = new Request(url.href);
+    const queryParams = url.searchParams;
     let levels: RouteLevel[];
     try {
-      levels = await Promise.all(mods.map((mod) => buildLevel(mod, params, request)));
+      levels = await Promise.all(mods.map((mod) => buildLevel(mod, params, queryParams, request)));
     } catch (error) {
       if (this.#isStale(token, signal)) return;
       const leafMod = mods[mods.length - 1]!;
       if (leafMod.ErrorBoundary) {
-        this.#onMatch([{ component: leafMod.ErrorBoundary, loaderData: error, params }]);
+        this.#onMatch([{ component: leafMod.ErrorBoundary, loaderData: error, params, queryParams }]);
       } else {
         throw error;
       }
@@ -177,7 +182,7 @@ export class Router {
     formData: FormData,
     signal?: AbortSignal
   ): Promise<void> {
-    const result = await this.#loadModules(matches[0]!, token, signal);
+    const result = await this.#loadModules(matches[0]!, url.searchParams, token, signal);
     if (!result) return;
 
     const { mods, params } = result;
@@ -185,11 +190,11 @@ export class Router {
 
     if (leafMod.action) {
       try {
-        await leafMod.action({ params, request: new Request(url.href, { method: 'POST', body: formData }) });
+        await leafMod.action({ params, queryParams: url.searchParams, request: new Request(url.href, { method: 'POST', body: formData }) });
       } catch (error) {
         if (this.#isStale(token, signal)) return;
         if (leafMod.ErrorBoundary) {
-          this.#onMatch([{ component: leafMod.ErrorBoundary, loaderData: error, params }]);
+          this.#onMatch([{ component: leafMod.ErrorBoundary, loaderData: error, params, queryParams: url.searchParams }]);
         } else {
           throw error;
         }
@@ -207,7 +212,7 @@ export class Router {
     token: number,
     signal?: AbortSignal
   ): Promise<void> {
-    const result = await this.#loadModules(matches[0]!, token, signal);
+    const result = await this.#loadModules(matches[0]!, url.searchParams, token, signal);
     if (!result) return;
 
     await this.#buildAndEmit(url, result.mods, result.params, token, signal);
