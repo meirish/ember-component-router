@@ -26,14 +26,10 @@ export default class RoutePortal extends Component<RoutePortalSignature> {
   constructor(owner: Owner, args: RoutePortalSignature['Args']) {
     super(owner, args);
     this.#context = getOrCreateContext(getOwner(this)!);
-    this.#router = new Router(
-      args.config,
-      args.base ?? '/',
-      (levels) => {
-        this.#context.levels = levels;
-        this.#context.resetOutletDepth();
-      }
-    );
+    this.#router = new Router(args.config, args.base ?? '/', (levels) => {
+      this.#context.levels = levels;
+      this.#context.resetOutletDepth();
+    });
   }
 
   willDestroy(): void {
@@ -64,7 +60,12 @@ export default class RoutePortal extends Component<RoutePortalSignature> {
   <template>
     <div data-route-portal>
       {{#if this.currentComponent}}
-        {{component this.currentComponent loaderData=this.loaderData params=this.params queryParams=this.queryParams}}
+        {{component
+          this.currentComponent
+          loaderData=this.loaderData
+          params=this.params
+          queryParams=this.queryParams
+        }}
       {{/if}}
     </div>
   </template>

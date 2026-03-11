@@ -46,7 +46,12 @@ export default class Outlet extends Component<OutletSignature> {
 
   <template>
     {{#if this.currentComponent}}
-      {{component this.currentComponent loaderData=this.loaderData params=this.params queryParams=this.queryParams}}
+      {{component
+        this.currentComponent
+        loaderData=this.loaderData
+        params=this.params
+        queryParams=this.queryParams
+      }}
     {{/if}}
   </template>
 }

@@ -3,7 +3,7 @@ import { extensions, ember, classicEmberSupport } from '@embroider/vite';
 import { babel } from '@rollup/plugin-babel';
 import { fileURLToPath } from 'node:url';
 import { resolve, dirname } from 'node:path';
-import mkcert from 'vite-plugin-mkcert'
+import mkcert from 'vite-plugin-mkcert';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

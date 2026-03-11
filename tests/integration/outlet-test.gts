@@ -1,4 +1,4 @@
-import Component from '@glimmer/component';
+import type { TemplateOnlyComponent } from '@ember/component/template-only';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import { render, waitFor, settled } from '@ember/test-helpers';
@@ -14,7 +14,9 @@ module('Integration | Component | Outlet', function (hooks) {
       return;
     }
 
-    const HomeComponent = <template><p data-test-home>Home</p></template>;
+    const HomeComponent = <template>
+      <p data-test-home>Home</p>
+    </template>;
     const AppLayout = <template>
       <div data-test-layout>
         <Outlet />
@@ -22,14 +24,15 @@ module('Integration | Component | Outlet', function (hooks) {
     </template>;
 
     const routes = [
-      layout(() => Promise.resolve({ default: AppLayout }), [
-        index(() => Promise.resolve({ default: HomeComponent })),
-      ]),
+      layout(
+        () => Promise.resolve({ default: AppLayout }),
+        [index(() => Promise.resolve({ default: HomeComponent }))],
+      ),
     ];
 
-    await render(<template>
-      <RoutePortal @config={{routes}} @base="/" />
-    </template>);
+    await render(
+      <template><RoutePortal @config={{routes}} @base="/" /></template>,
+    );
 
     await window.navigation.navigate('/').finished;
     await settled();
@@ -47,8 +50,12 @@ module('Integration | Component | Outlet', function (hooks) {
       return;
     }
 
-    const HomeComponent = <template><p data-test-home>Home</p></template>;
-    const AboutComponent = <template><p data-test-about>About</p></template>;
+    const HomeComponent = <template>
+      <p data-test-home>Home</p>
+    </template>;
+    const AboutComponent = <template>
+      <p data-test-about>About</p>
+    </template>;
     const AppLayout = <template>
       <div data-test-layout>
         <Outlet />
@@ -56,15 +63,18 @@ module('Integration | Component | Outlet', function (hooks) {
     </template>;
 
     const routes = [
-      layout(() => Promise.resolve({ default: AppLayout }), [
-        index(() => Promise.resolve({ default: HomeComponent })),
-        route('about', () => Promise.resolve({ default: AboutComponent })),
-      ]),
+      layout(
+        () => Promise.resolve({ default: AppLayout }),
+        [
+          index(() => Promise.resolve({ default: HomeComponent })),
+          route('about', () => Promise.resolve({ default: AboutComponent })),
+        ],
+      ),
     ];
 
-    await render(<template>
-      <RoutePortal @config={{routes}} @base="/" />
-    </template>);
+    await render(
+      <template><RoutePortal @config={{routes}} @base="/" /></template>,
+    );
 
     await window.navigation.navigate('/').finished;
     await settled();
@@ -79,7 +89,11 @@ module('Integration | Component | Outlet', function (hooks) {
 
     assert.dom('[data-test-about]').exists();
     assert.dom('[data-test-home]').doesNotExist();
-    assert.strictEqual(document.querySelector('[data-test-layout]'), layoutEl, 'layout DOM element is reused');
+    assert.strictEqual(
+      document.querySelector('[data-test-layout]'),
+      layoutEl,
+      'layout DOM element is reused',
+    );
   });
 
   test('layout with its own loader passes loaderData to layout', async function (assert) {
@@ -91,30 +105,32 @@ module('Integration | Component | Outlet', function (hooks) {
     interface LayoutSig {
       Args: { loaderData: { title: string } };
     }
-    class AppLayout extends Component<LayoutSig> {
-      <template>
-        <div data-test-layout>
-          <h1 data-test-title>{{@loaderData.title}}</h1>
-          <Outlet />
-        </div>
-      </template>
-    }
-    const HomeComponent = <template><p data-test-home>Home</p></template>;
+    const AppLayout: TemplateOnlyComponent<LayoutSig> = <template>
+      <div data-test-layout>
+        <h1 data-test-title>{{@loaderData.title}}</h1>
+        <Outlet />
+      </div>
+    </template>;
+    const HomeComponent = <template>
+      <p data-test-home>Home</p>
+    </template>;
 
     const routes = [
-      layout(async () => ({
-        default: AppLayout,
-        async loader() {
-          return { title: 'My App' };
-        },
-      }), [
-        index(() => Promise.resolve({ default: HomeComponent })),
-      ]),
+      layout(
+        () =>
+          Promise.resolve({
+            default: AppLayout,
+            loader() {
+              return { title: 'My App' };
+            },
+          }),
+        [index(() => Promise.resolve({ default: HomeComponent }))],
+      ),
     ];
 
-    await render(<template>
-      <RoutePortal @config={{routes}} @base="/" />
-    </template>);
+    await render(
+      <template><RoutePortal @config={{routes}} @base="/" /></template>,
+    );
 
     await window.navigation.navigate('/').finished;
     await settled();
@@ -130,7 +146,9 @@ module('Integration | Component | Outlet', function (hooks) {
       return;
     }
 
-    const HomeComponent = <template><p data-test-home>Home</p></template>;
+    const HomeComponent = <template>
+      <p data-test-home>Home</p>
+    </template>;
     const OuterLayout = <template>
       <div data-test-outer>
         <Outlet />
@@ -143,16 +161,20 @@ module('Integration | Component | Outlet', function (hooks) {
     </template>;
 
     const routes = [
-      layout(() => Promise.resolve({ default: OuterLayout }), [
-        layout(() => Promise.resolve({ default: InnerLayout }), [
-          index(() => Promise.resolve({ default: HomeComponent })),
-        ]),
-      ]),
+      layout(
+        () => Promise.resolve({ default: OuterLayout }),
+        [
+          layout(
+            () => Promise.resolve({ default: InnerLayout }),
+            [index(() => Promise.resolve({ default: HomeComponent }))],
+          ),
+        ],
+      ),
     ];
 
-    await render(<template>
-      <RoutePortal @config={{routes}} @base="/" />
-    </template>);
+    await render(
+      <template><RoutePortal @config={{routes}} @base="/" /></template>,
+    );
 
     await window.navigation.navigate('/').finished;
     await settled();

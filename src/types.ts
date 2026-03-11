@@ -12,8 +12,8 @@ export interface ActionArgs {
 
 export interface RouteModule {
   default: object;
-  loader?: (args: LoaderArgs) => Promise<unknown> | unknown;
-  action?: (args: ActionArgs) => Promise<unknown> | unknown;
+  loader?: (args: LoaderArgs) => unknown;
+  action?: (args: ActionArgs) => unknown;
   ErrorBoundary?: object;
 }
 

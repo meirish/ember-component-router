@@ -6,8 +6,14 @@ declare global {
   interface Navigation extends EventTarget {
     readonly currentEntry: NavigationHistoryEntry;
     navigate(url: string, options?: NavigateOptions): NavigationResult;
-    addEventListener(type: 'navigate', listener: (event: NavigateEvent) => void): void;
-    removeEventListener(type: 'navigate', listener: (event: NavigateEvent) => void): void;
+    addEventListener(
+      type: 'navigate',
+      listener: (event: NavigateEvent) => void,
+    ): void;
+    removeEventListener(
+      type: 'navigate',
+      listener: (event: NavigateEvent) => void,
+    ): void;
   }
 
   interface NavigationHistoryEntry {

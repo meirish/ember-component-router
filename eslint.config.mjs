@@ -14,24 +14,46 @@
  */
 import babelParser from '@babel/eslint-parser';
 import js from '@eslint/js';
-import { defineConfig, globalIgnores } from 'eslint/config';
 import prettier from 'eslint-config-prettier';
 import ember from 'eslint-plugin-ember/recommended';
 import importPlugin from 'eslint-plugin-import';
 import n from 'eslint-plugin-n';
 import globals from 'globals';
+import ts from 'typescript-eslint';
 
-const esmParserOptions = {
-  ecmaFeatures: { modules: true },
-  ecmaVersion: 'latest',
+const parserOptions = {
+  esm: {
+    js: {
+      ecmaFeatures: { modules: true },
+      ecmaVersion: 'latest',
+    },
+    ts: {
+      projectService: true,
+      tsconfigRootDir: import.meta.dirname,
+    },
+  },
 };
 
-export default defineConfig([
-  globalIgnores(['dist/', 'dist-*/', 'declarations/', 'coverage/', '!**/.*']),
+export default ts.config(
   js.configs.recommended,
-  prettier,
   ember.configs.base,
   ember.configs.gjs,
+  ember.configs.gts,
+  prettier,
+  /**
+   * Ignores must be in their own object
+   * https://eslint.org/docs/latest/use/configure/ignore
+   */
+  {
+    ignores: [
+      'dist/',
+      'dist-tests/',
+      'declarations/',
+      'node_modules/',
+      'coverage/',
+      '!**/.*',
+    ],
+  },
   /**
    * https://eslint.org/docs/latest/use/configure/configuration-files#configuring-linter-options
    */
@@ -49,11 +71,19 @@ export default defineConfig([
   {
     files: ['**/*.{js,gjs}'],
     languageOptions: {
-      parserOptions: esmParserOptions,
+      parserOptions: parserOptions.esm.js,
       globals: {
         ...globals.browser,
       },
     },
+  },
+  {
+    files: ['**/*.{ts,gts}'],
+    languageOptions: {
+      parser: ember.parser,
+      parserOptions: parserOptions.esm.ts,
+    },
+    extends: [...ts.configs.recommendedTypeChecked, ember.configs.gts],
   },
   {
     files: ['src/**/*'],
@@ -69,7 +99,13 @@ export default defineConfig([
    * CJS node files
    */
   {
-    files: ['**/*.cjs'],
+    files: [
+      '**/*.cjs',
+      '.prettierrc.js',
+      '.stylelintrc.js',
+      '.template-lintrc.js',
+      'addon-main.cjs',
+    ],
     plugins: {
       n,
     },
@@ -94,10 +130,10 @@ export default defineConfig([
     languageOptions: {
       sourceType: 'module',
       ecmaVersion: 'latest',
-      parserOptions: esmParserOptions,
+      parserOptions: parserOptions.esm.js,
       globals: {
         ...globals.node,
       },
     },
   },
-]);
+);

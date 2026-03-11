@@ -34,10 +34,7 @@ module('Unit | routes helpers', function () {
   });
 
   test('prefix() returns array and prepends prefix to each child pattern', function (assert) {
-    const defs = prefix('admin', [
-      index(factory),
-      route('users', factory),
-    ]);
+    const defs = prefix('admin', [index(factory), route('users', factory)]);
     assert.strictEqual(defs.length, 2);
     assert.strictEqual(defs[0]!.pattern, 'admin');
     assert.strictEqual(defs[1]!.pattern, 'admin/users');

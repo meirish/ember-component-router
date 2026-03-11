@@ -1,8 +1,12 @@
-/// <reference path="./types/navigation-api.d.ts" />
-
 import { ArrayMatcher } from '@remix-run/route-pattern';
 import type { Match } from '@remix-run/route-pattern';
-import type { RouteDefinition, ResolvedRoute, RouteLevel, RouteModule, ModuleFactory } from './types.ts';
+import type {
+  RouteDefinition,
+  ResolvedRoute,
+  RouteLevel,
+  RouteModule,
+  ModuleFactory,
+} from './types.ts';
 
 export type OnMatchCallback = (levels: RouteLevel[]) => void;
 
@@ -11,7 +15,7 @@ type RouteMatch = Match<string, ResolvedRoute>;
 export function flattenRoutes(
   definitions: RouteDefinition[],
   base: string,
-  layoutChain: ModuleFactory[] = []
+  layoutChain: ModuleFactory[] = [],
 ): ResolvedRoute[] {
   const resolved: ResolvedRoute[] = [];
 
@@ -25,11 +29,19 @@ export function flattenRoutes(
       }
     } else if (def._type === 'index') {
       const pattern = def.pattern ? joinPaths(base, def.pattern) : base || '/';
-      resolved.push({ fullPattern: pattern, moduleFactory: def.moduleFactory!, layoutChain });
+      resolved.push({
+        fullPattern: pattern,
+        moduleFactory: def.moduleFactory!,
+        layoutChain,
+      });
     } else {
       const pattern = joinPaths(base, def.pattern);
       if (def.moduleFactory) {
-        resolved.push({ fullPattern: pattern, moduleFactory: def.moduleFactory, layoutChain });
+        resolved.push({
+          fullPattern: pattern,
+          moduleFactory: def.moduleFactory,
+          layoutChain,
+        });
       }
       if (def.children?.length) {
         resolved.push(...flattenRoutes(def.children, pattern, layoutChain));
@@ -50,7 +62,7 @@ async function buildLevel(
   mod: RouteModule,
   params: Record<string, string | undefined>,
   queryParams: URLSearchParams,
-  request: Request
+  request: Request,
 ): Promise<RouteLevel> {
   let loaderData: unknown;
   if (mod.loader) {
@@ -68,14 +80,14 @@ export class Router {
   constructor(
     config: RouteDefinition[],
     base: string = '/',
-    onMatch: OnMatchCallback
+    onMatch: OnMatchCallback,
   ) {
     this.#onMatch = onMatch;
     this.#base = ('/' + base).replace(/\/+/g, '/').replace(/\/$/, '') || '/';
 
     this.#matcher = new ArrayMatcher<ResolvedRoute>();
     for (const route of flattenRoutes(config, this.#base)) {
-      console.log('route is: ', route)
+      console.log('route is: ', route);
       this.#matcher.add(route.fullPattern, route);
     }
 
@@ -95,7 +107,11 @@ export class Router {
   }
 
   #handleNavigate = (event: NavigateEvent): void => {
-    if (!event.canIntercept || event.hashChange || event.downloadRequest !== null) {
+    if (
+      !event.canIntercept ||
+      event.hashChange ||
+      event.downloadRequest !== null
+    ) {
       return;
     }
 
@@ -113,7 +129,13 @@ export class Router {
     if (event.formData !== null) {
       event.intercept({
         handler: async () => {
-          await this.#handleAction(url, matches, token, event.formData!, event.signal);
+          await this.#handleAction(
+            url,
+            matches,
+            token,
+            event.formData!,
+            event.signal,
+          );
         },
       });
     } else {
@@ -129,8 +151,11 @@ export class Router {
     leafMatch: RouteMatch,
     queryParams: URLSearchParams,
     token: number,
-    signal?: AbortSignal
-  ): Promise<{ mods: RouteModule[]; params: Record<string, string | undefined> } | null> {
+    signal?: AbortSignal,
+  ): Promise<{
+    mods: RouteModule[];
+    params: Record<string, string | undefined>;
+  } | null> {
     const { data: route } = leafMatch;
     const params = leafMatch.params as Record<string, string | undefined>;
     const allFactories = [...route.layoutChain, route.moduleFactory];
@@ -140,7 +165,9 @@ export class Router {
       mods = await Promise.all(allFactories.map((f) => f()));
     } catch (error) {
       if (this.#isStale(token, signal)) return null;
-      this.#onMatch([{ component: {}, loaderData: error, params, queryParams }]);
+      this.#onMatch([
+        { component: {}, loaderData: error, params, queryParams },
+      ]);
       return null;
     }
 
@@ -153,18 +180,27 @@ export class Router {
     mods: RouteModule[],
     params: Record<string, string | undefined>,
     token: number,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<void> {
     const request = new Request(url.href);
     const queryParams = url.searchParams;
     let levels: RouteLevel[];
     try {
-      levels = await Promise.all(mods.map((mod) => buildLevel(mod, params, queryParams, request)));
+      levels = await Promise.all(
+        mods.map((mod) => buildLevel(mod, params, queryParams, request)),
+      );
     } catch (error) {
       if (this.#isStale(token, signal)) return;
       const leafMod = mods[mods.length - 1]!;
       if (leafMod.ErrorBoundary) {
-        this.#onMatch([{ component: leafMod.ErrorBoundary, loaderData: error, params, queryParams }]);
+        this.#onMatch([
+          {
+            component: leafMod.ErrorBoundary,
+            loaderData: error,
+            params,
+            queryParams,
+          },
+        ]);
       } else {
         throw error;
       }
@@ -180,9 +216,14 @@ export class Router {
     matches: RouteMatch[],
     token: number,
     formData: FormData,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<void> {
-    const result = await this.#loadModules(matches[0]!, url.searchParams, token, signal);
+    const result = await this.#loadModules(
+      matches[0]!,
+      url.searchParams,
+      token,
+      signal,
+    );
     if (!result) return;
 
     const { mods, params } = result;
@@ -190,11 +231,22 @@ export class Router {
 
     if (leafMod.action) {
       try {
-        await leafMod.action({ params, queryParams: url.searchParams, request: new Request(url.href, { method: 'POST', body: formData }) });
+        await leafMod.action({
+          params,
+          queryParams: url.searchParams,
+          request: new Request(url.href, { method: 'POST', body: formData }),
+        });
       } catch (error) {
         if (this.#isStale(token, signal)) return;
         if (leafMod.ErrorBoundary) {
-          this.#onMatch([{ component: leafMod.ErrorBoundary, loaderData: error, params, queryParams: url.searchParams }]);
+          this.#onMatch([
+            {
+              component: leafMod.ErrorBoundary,
+              loaderData: error,
+              params,
+              queryParams: url.searchParams,
+            },
+          ]);
         } else {
           throw error;
         }
@@ -210,9 +262,14 @@ export class Router {
     url: URL,
     matches: RouteMatch[],
     token: number,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<void> {
-    const result = await this.#loadModules(matches[0]!, url.searchParams, token, signal);
+    const result = await this.#loadModules(
+      matches[0]!,
+      url.searchParams,
+      token,
+      signal,
+    );
     if (!result) return;
 
     await this.#buildAndEmit(url, result.mods, result.params, token, signal);

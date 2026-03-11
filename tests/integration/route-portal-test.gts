@@ -1,4 +1,4 @@
-import Component from '@glimmer/component';
+import type { TemplateOnlyComponent } from '@ember/component/template-only';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import { render, waitFor, settled } from '@ember/test-helpers';
@@ -6,8 +6,12 @@ import { RoutePortal } from 'ember-component-router';
 import { route, index } from 'ember-component-router/routes';
 import type { LoaderArgs } from 'ember-component-router';
 
-const HomeComponent = <template><p data-test-home>Home</p></template>;
-const AboutComponent = <template><p data-test-about>About</p></template>;
+const HomeComponent = <template>
+  <p data-test-home>Home</p>
+</template>;
+const AboutComponent = <template>
+  <p data-test-about>About</p>
+</template>;
 
 const testRoutes = [
   index(() => Promise.resolve({ default: HomeComponent })),
@@ -23,9 +27,9 @@ module('Integration | Component | RoutePortal', function (hooks) {
       return;
     }
 
-    await render(<template>
-      <RoutePortal @config={{testRoutes}} @base="/" />
-    </template>);
+    await render(
+      <template><RoutePortal @config={{testRoutes}} @base="/" /></template>,
+    );
 
     await window.navigation.navigate('/').finished;
     await settled();
@@ -40,9 +44,9 @@ module('Integration | Component | RoutePortal', function (hooks) {
       return;
     }
 
-    await render(<template>
-      <RoutePortal @config={{testRoutes}} @base="/" />
-    </template>);
+    await render(
+      <template><RoutePortal @config={{testRoutes}} @base="/" /></template>,
+    );
 
     await window.navigation.navigate('/about').finished;
     await settled();
@@ -58,9 +62,9 @@ module('Integration | Component | RoutePortal', function (hooks) {
       return;
     }
 
-    await render(<template>
-      <RoutePortal @config={{testRoutes}} @base="/" />
-    </template>);
+    await render(
+      <template><RoutePortal @config={{testRoutes}} @base="/" /></template>,
+    );
 
     await window.navigation.navigate('/').finished;
     await settled();
@@ -79,15 +83,19 @@ module('Integration | Component | RoutePortal', function (hooks) {
       return;
     }
 
-    const AdminComponent = <template><p data-test-admin>Admin</p></template>;
+    const AdminComponent = <template>
+      <p data-test-admin>Admin</p>
+    </template>;
     const adminRoutes = [
       index(() => Promise.resolve({ default: AdminComponent })),
     ];
 
-    await render(<template>
-      <RoutePortal @config={{testRoutes}} @base="/" />
-      <RoutePortal @config={{adminRoutes}} @base="/admin" />
-    </template>);
+    await render(
+      <template>
+        <RoutePortal @config={{testRoutes}} @base="/" />
+        <RoutePortal @config={{adminRoutes}} @base="/admin" />
+      </template>,
+    );
 
     await window.navigation.navigate('/').finished;
     await settled();
@@ -105,24 +113,24 @@ module('Integration | Component | RoutePortal', function (hooks) {
     interface DataSig {
       Args: { loaderData: { message: string } };
     }
-    class DataComponent extends Component<DataSig> {
-      <template>
-        <p data-test-data>{{@loaderData.message}}</p>
-      </template>
-    }
+    const DataComponent: TemplateOnlyComponent<DataSig> = <template>
+      <p data-test-data>{{@loaderData.message}}</p>
+    </template>;
 
     const loaderRoutes = [
-      index(async () => ({
-        default: DataComponent,
-        async loader() {
-          return { message: 'hello from loader' };
-        },
-      })),
+      index(() =>
+        Promise.resolve({
+          default: DataComponent,
+          loader() {
+            return { message: 'hello from loader' };
+          },
+        }),
+      ),
     ];
 
-    await render(<template>
-      <RoutePortal @config={{loaderRoutes}} @base="/" />
-    </template>);
+    await render(
+      <template><RoutePortal @config={{loaderRoutes}} @base="/" /></template>,
+    );
 
     await window.navigation.navigate('/').finished;
     await settled();
@@ -140,24 +148,24 @@ module('Integration | Component | RoutePortal', function (hooks) {
     interface Sig {
       Args: { loaderData: { page: string } };
     }
-    class ListComponent extends Component<Sig> {
-      <template>
-        <p data-test-page>{{@loaderData.page}}</p>
-      </template>
-    }
+    const ListComponent: TemplateOnlyComponent<Sig> = <template>
+      <p data-test-page>{{@loaderData.page}}</p>
+    </template>;
 
     const routes = [
-      route('items', async () => ({
-        default: ListComponent,
-        async loader({ queryParams }: LoaderArgs) {
-          return { page: queryParams.get('page') ?? '1' };
-        },
-      })),
+      route('items', () =>
+        Promise.resolve({
+          default: ListComponent,
+          loader({ queryParams }: LoaderArgs) {
+            return { page: queryParams.get('page') ?? '1' };
+          },
+        }),
+      ),
     ];
 
-    await render(<template>
-      <RoutePortal @config={{routes}} @base="/" />
-    </template>);
+    await render(
+      <template><RoutePortal @config={{routes}} @base="/" /></template>,
+    );
 
     await window.navigation.navigate('/items?page=3').finished;
     await settled();

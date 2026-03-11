@@ -28,10 +28,7 @@ module('Unit | Router | flattenRoutes', function () {
 
   test('nested route emits parent AND child entries', function (assert) {
     const config = [
-      route('dashboard', factory, [
-        index(factory),
-        route('settings', factory),
-      ]),
+      route('dashboard', factory, [index(factory), route('settings', factory)]),
     ];
     const resolved = flattenRoutes(config, '/');
     assert.strictEqual(resolved.length, 3);
@@ -41,12 +38,7 @@ module('Unit | Router | flattenRoutes', function () {
   });
 
   test('layout() skips layout node but includes all its children', function (assert) {
-    const config = [
-      layout(factory, [
-        index(factory),
-        route('about', factory),
-      ]),
-    ];
+    const config = [layout(factory, [index(factory), route('about', factory)])];
     const resolved = flattenRoutes(config, '/');
     assert.strictEqual(resolved.length, 2);
     assert.strictEqual(resolved[0]!.fullPattern, '/');
@@ -55,10 +47,7 @@ module('Unit | Router | flattenRoutes', function () {
 
   test('prefix() children resolve to correct full patterns', function (assert) {
     const config = [
-      route('projects', factory, [
-        index(factory),
-        route(':id', factory),
-      ]),
+      route('projects', factory, [index(factory), route(':id', factory)]),
     ];
     const resolved = flattenRoutes(config, '/');
     assert.strictEqual(resolved.length, 3);
@@ -73,11 +62,15 @@ module('Unit | Router | flattenRoutes', function () {
       matcher.add('/dashboard', 'parent');
       matcher.add('/dashboard/settings', 'child');
 
-      const settingsMatches = matcher.matchAll('https://example.com/dashboard/settings');
+      const settingsMatches = matcher.matchAll(
+        'https://example.com/dashboard/settings',
+      );
       assert.strictEqual(settingsMatches.length, 1);
       assert.strictEqual(settingsMatches[0]!.data, 'child');
 
-      const dashboardMatches = matcher.matchAll('https://example.com/dashboard');
+      const dashboardMatches = matcher.matchAll(
+        'https://example.com/dashboard',
+      );
       assert.strictEqual(dashboardMatches.length, 1);
       assert.strictEqual(dashboardMatches[0]!.data, 'parent');
     });

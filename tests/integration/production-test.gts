@@ -1,9 +1,9 @@
-import Component from '@glimmer/component';
+import type { TemplateOnlyComponent } from '@ember/component/template-only';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import { render, waitFor, settled } from '@ember/test-helpers';
 import { RoutePortal } from 'ember-component-router';
-import { route, index } from 'ember-component-router/routes';
+import { index } from 'ember-component-router/routes';
 
 module('Integration | Production Hardening', function (hooks) {
   setupRenderingTest(hooks);
@@ -14,23 +14,35 @@ module('Integration | Production Hardening', function (hooks) {
       return;
     }
 
-    const HomeComponent = <template><p data-test-home>Home</p></template>;
-    const AdminComponent = <template><p data-test-admin>Admin</p></template>;
+    const HomeComponent = <template>
+      <p data-test-home>Home</p>
+    </template>;
+    const AdminComponent = <template>
+      <p data-test-admin>Admin</p>
+    </template>;
 
-    const rootRoutes = [index(() => Promise.resolve({ default: HomeComponent }))];
-    const adminRoutes = [index(() => Promise.resolve({ default: AdminComponent }))];
+    const rootRoutes = [
+      index(() => Promise.resolve({ default: HomeComponent })),
+    ];
+    const adminRoutes = [
+      index(() => Promise.resolve({ default: AdminComponent })),
+    ];
 
-    await render(<template>
-      <RoutePortal @config={{rootRoutes}} @base="/" />
-      <RoutePortal @config={{adminRoutes}} @base="/admin" />
-    </template>);
+    await render(
+      <template>
+        <RoutePortal @config={{rootRoutes}} @base="/" />
+        <RoutePortal @config={{adminRoutes}} @base="/admin" />
+      </template>,
+    );
 
     await window.navigation.navigate('/').finished;
     await settled();
     await waitFor('[data-test-home]', { timeout: 2000 });
 
     assert.dom('[data-test-home]').exists('root portal renders for /');
-    assert.dom('[data-test-admin]').doesNotExist('admin portal does not render for /');
+    assert
+      .dom('[data-test-admin]')
+      .doesNotExist('admin portal does not render for /');
 
     await window.navigation.navigate('/admin').finished;
     await settled();
@@ -48,25 +60,25 @@ module('Integration | Production Hardening', function (hooks) {
     interface ErrorSig {
       Args: { loaderData: Error };
     }
-    class ErrorBoundary extends Component<ErrorSig> {
-      <template>
-        <p data-test-error>Error: {{@loaderData.message}}</p>
-      </template>
-    }
+    const ErrorBoundary: TemplateOnlyComponent<ErrorSig> = <template>
+      <p data-test-error>Error: {{@loaderData.message}}</p>
+    </template>;
 
     const loaderRoutes = [
-      index(async () => ({
-        default: {},
-        ErrorBoundary,
-        async loader() {
-          throw new Error('loader failed');
-        },
-      })),
+      index(() =>
+        Promise.resolve({
+          default: {},
+          ErrorBoundary,
+          loader() {
+            throw new Error('loader failed');
+          },
+        }),
+      ),
     ];
 
-    await render(<template>
-      <RoutePortal @config={{loaderRoutes}} @base="/" />
-    </template>);
+    await render(
+      <template><RoutePortal @config={{loaderRoutes}} @base="/" /></template>,
+    );
 
     await window.navigation.navigate('/').finished;
     await settled();
