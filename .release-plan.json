@@ -1,0 +1,18 @@
+{
+  "solution": {
+    "ember-component-router": {
+      "impact": "patch",
+      "oldVersion": "0.0.0",
+      "newVersion": "0.0.1",
+      "tagName": "latest",
+      "constraints": [
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
+        }
+      ],
+      "pkgJSONPath": "./package.json"
+    }
+  },
+  "description": "## Release (2026-03-18)\n\n* ember-component-router 0.0.1 (patch)\n\n#### :bug: Bug Fix\n* `ember-component-router`\n  * [#2](https://github.com/meirish/ember-component-router/pull/2) Prepare for release ([@meirish](https://github.com/meirish))\n\n#### Committers: 1\n- Matthew Irish ([@meirish](https://github.com/meirish))\n"
+}
