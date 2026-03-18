@@ -215,7 +215,9 @@ Patterns use the `@remix-run/route-pattern` syntax:
 | `users/:id` | `/users/42` |
 | `users(/:id)` | `/users` and `/users/42` |
 | `*` | anything (wildcard) |
+* - this last route is important - see using with Ember's router section above
 
 ## License
 
 This project is licensed under the [MIT License](LICENSE.md)
+
