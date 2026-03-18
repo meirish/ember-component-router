@@ -49,6 +49,7 @@ export default {
     // babel.config.json.
     babel({
       extensions: ['.js', '.gjs', '.ts', '.gts'],
+      exclude: ['**/*.d.ts'],
       babelHelpers: 'bundled',
       configFile: babelConfig,
     }),
