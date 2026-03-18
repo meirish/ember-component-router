@@ -104,6 +104,10 @@
   "ember-addon": {
     "version": 2,
     "type": "addon",
-    "main": "addon-main.cjs"
+    "main": "addon-main.cjs",
+    "app-js": {
+      "./components/outlet.js": "./dist/_app_/components/outlet.js",
+      "./components/route-portal.js": "./dist/_app_/components/route-portal.js"
+    }
   }
 }
