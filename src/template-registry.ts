@@ -7,6 +7,6 @@ import type RoutePortal from './components/route-portal';
 
 // Uncomment this once entries have been added! 👇
 export default interface Registry {
-  Outlet: typeof Outlet,
-  RoutePortal: typeof RoutePortal
+  Outlet: typeof Outlet;
+  RoutePortal: typeof RoutePortal;
 }

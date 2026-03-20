@@ -6,9 +6,9 @@ interface Signature {
   };
 }
 
-const qp = (qp, val) => {
+const qp = (qp: URLSearchParams, val: string) => {
   return qp.get(val);
-}
+};
 
 const AboutRoute: TemplateOnlyComponent<Signature> = <template>
   <h2 data-test-about>About</h2>
