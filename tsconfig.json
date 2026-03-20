@@ -13,6 +13,10 @@
   ],
   "compilerOptions": {
     "rootDir": ".",
+    "paths": {
+      "ember-component-router": ["./src/index.ts"],
+      "ember-component-router/*": ["./src/*.ts"]
+    },
     "types": [
       "ember-source/types",
       "vite/client",
