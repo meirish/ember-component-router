@@ -1,26 +1,27 @@
+/**
+ * This tsconfig is not used for publishing.
+ * It's only for the local editing experience
+ * (and linting)
+ */
 {
-  "glint": {
-    "environment": "ember-template-imports"
-  },
   "extends": "@ember/app-tsconfig",
   "include": [
-    "./src/**/*",
-    "./tests/**/*",
-    "./demo-app/**/*",
-    "./unpublished-development-types/**/*"
+    "src/**/*",
+    "tests/**/*",
+    "unpublished-development-types/**/*",
+    "demo-app/**/*"
   ],
   "compilerOptions": {
-    "allowJs": true,
     "rootDir": ".",
-    "types": [
-      "ember-source/types",
-      "@glint/ember-tsc/types",
-      "@types/qunit",
-      "vite/client"
-    ],
     "paths": {
       "ember-component-router": ["./src/index.ts"],
-      "ember-component-router/*": ["./src/*.ts", "./src/*.gts"]
-    }
+      "ember-component-router/*": ["./src/*.ts"]
+    },
+    "types": [
+      "ember-source/types",
+      "vite/client",
+      "@embroider/core/virtual",
+      "@glint/ember-tsc/types"
+    ]
   }
 }

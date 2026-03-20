@@ -7,7 +7,11 @@ module.exports = {
   plugins: [
     [
       '@babel/plugin-transform-typescript',
-      { allExtensions: true, isTSX: false, allowDeclareFields: true },
+      {
+        allExtensions: true,
+        allowDeclareFields: true,
+        onlyRemoveTypeImports: true,
+      },
     ],
     [
       'babel-plugin-ember-template-compilation',
