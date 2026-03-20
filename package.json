@@ -7,7 +7,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/meirish/ember-component-router.git"
+    "url": "git+https://github.com/meirish/ember-component-router.git"
   },
   "license": "MIT",
   "author": "",
@@ -69,11 +69,10 @@
     "@glint/core": "^1.4.0",
     "@glint/environment-ember-loose": "^1.4.0",
     "@glint/environment-ember-template-imports": "^1.4.0",
-    "@glint/template": "^1.4.0",
+    "@glint/template": "^1.7.4",
     "@eslint/js": "^9.17.0",
     "@glimmer/component": "^2.0.0",
     "@glint/ember-tsc": "^1.1.1",
-    "@glint/template": "^1.7.4",
     "@rollup/plugin-babel": "^6.0.4",
     "@types/qunit": "^2.19.13",
     "babel-plugin-ember-template-compilation": "^2.2.5",
