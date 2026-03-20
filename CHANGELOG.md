@@ -1,5 +1,16 @@
 # Changelog
 
+## Release (2026-03-20)
+
+* ember-component-router 0.0.3 (patch)
+
+#### :bug: Bug Fix
+* `ember-component-router`
+  * [#7](https://github.com/meirish/ember-component-router/pull/7) Fix types ([@meirish](https://github.com/meirish))
+
+#### Committers: 1
+- Matthew Irish ([@meirish](https://github.com/meirish))
+
 ## Release (2026-03-18)
 
 * ember-component-router 0.0.2 (patch)
