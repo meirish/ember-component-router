@@ -6,13 +6,17 @@ interface Signature {
   };
 }
 
+const qp = (qp, val) => {
+  return qp.get(val);
+}
+
 const AboutRoute: TemplateOnlyComponent<Signature> = <template>
   <h2 data-test-about>About</h2>
   <p>This demo showcases ember-component-router using the Navigation API.</p>
   <h5>queryParams.query</h5>
-  {{@queryParams.get "query"}}
+  {{qp @queryParams "query"}}
   <h5>queryParams.sort</h5>
-  {{@queryParams.get "sort"}}
+  {{qp @queryParams "sort"}}
 </template>;
 
 export default AboutRoute;
